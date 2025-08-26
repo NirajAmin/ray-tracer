@@ -5,7 +5,7 @@ run:
 	"build/RayTracer.exe" > output/image.ppm
 
 clean: 
-	rmdir build
+	rmdir /s /q build
 	mkdir build
-	rmdir output
+	rmdir /s /q output
 	mkdir output
