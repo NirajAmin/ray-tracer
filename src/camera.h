@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include "scene-objects/hittable.h"
+#include "materials/material.h"
 
 /// @brief The camera public vars can be set, and will effect the initialize call that happens before render
 class camera
@@ -68,18 +69,17 @@ public:
 
         // Calculate the location of the upper left pixel.
         auto viewport_upper_left =
-            center - vec3(0, 0, focal_length) - viewport_u/2 - viewport_v/2;
+            center - vec3(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
         pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
     }
 
-        ray get_ray(int i, int j) const {
+    ray get_ray(int i, int j) const
+    {
         // Construct a camera ray originating from the origin and directed at randomly sampled
         // point around the pixel location i, j.
 
         auto offset = sample_square();
-        auto pixel_sample = pixel00_loc
-                          + ((i + offset.x()) * pixel_delta_u)
-                          + ((j + offset.y()) * pixel_delta_v);
+        auto pixel_sample = pixel00_loc + ((i + offset.x()) * pixel_delta_u) + ((j + offset.y()) * pixel_delta_v);
 
         auto ray_origin = center;
         auto ray_direction = pixel_sample - ray_origin;
@@ -87,20 +87,26 @@ public:
         return ray(ray_origin, ray_direction);
     }
 
-    vec3 sample_square() const {
+    vec3 sample_square() const
+    {
         // Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
         return vec3(random_double() - 0.5, random_double() - 0.5, 0);
     }
 
-    color ray_color(const ray& r, int depth, const hittable& world) const {
+    color ray_color(const ray &r, int depth, const hittable &world) const
+    {
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if (depth <= 0)
-            return color(0,0,0);
+            return color(0, 0, 0);
         hit_record rec;
 
-        if (world.hit(r, interval(0.001, infinity), rec)) {
-           vec3 direction = rec.normal + random_unit_vector();
-            return 0.7 * ray_color(ray(rec.p, direction), depth-1, world);
+        if (world.hit(r, interval(0.001, infinity), rec))
+        {
+            ray scattered;
+            color attenuation;
+            if (rec.mat->scatter(r, rec, attenuation, scattered))
+                return attenuation * ray_color(scattered, depth-1, world);
+            return color(0,0,0);
         }
 
         vec3 unit_direction = unit_vector(r.direction());
