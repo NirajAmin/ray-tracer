@@ -34,3 +34,7 @@ NO - Normal interpolation (smooth shading): 5
 NO - Hybrid rendering with a GPU (OpenGL/DirectX + ray tracing): 20  
 NO - GPU acceleration (GPU computing w/ e.g., CUDA): 20  
 NO - Adaptive sampling: 15  
+
+# Attributions
+
+Massive thanks to [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html) for providing a great starting point
