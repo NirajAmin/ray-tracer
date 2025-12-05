@@ -5,7 +5,7 @@
 
 Need 25 points plus minimum
 
-NO - A camera with configurable position, orientation, and field of view  
+YES - A camera with configurable position, orientation, and field of view  
 YES - Anti-aliasing  
 NO - Ray/sphere intersections  
 NO - Ray/triangle intersections  
