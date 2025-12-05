@@ -1,5 +1,5 @@
 make:
-	g++ main.cpp -o build/RayTracer
+	g++ src/main.cpp -o build/RayTracer
 
 run:
 	"build/RayTracer.exe" > output/image.ppm
