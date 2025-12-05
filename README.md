@@ -5,32 +5,32 @@
 
 Need 25 points plus minimum
 
-NO - A camera with configurable position, orientation, and field of view
-NO - Anti-aliasing
-NO - Ray/sphere intersections
-NO - Ray/triangle intersections
-NO - The ability to load textures (file format(s) of your choice; may use third-party libraries)
-NO - Textured spheres and triangles
-NO - The ability to load and render triangle meshes (file format(s) of your choice; may use third-party libraries for loading)
-NO - A spatial subdivision acceleration structure of your choice
-NO - Specular, diffuse, and dielectric materials (per first volume of Ray Tracing in One Weekend series)
-NO - Emissive materials (lights)
+NO - A camera with configurable position, orientation, and field of view  
+YES - Anti-aliasing  
+NO - Ray/sphere intersections  
+NO - Ray/triangle intersections  
+NO - The ability to load textures (file format(s) of your choice; may use third-party libraries)  
+NO - Textured spheres and triangles  
+NO - The ability to load and render triangle meshes (file format(s) of your choice; may use third-party libraries for loading)  
+NO - A spatial subdivision acceleration structure of your choice  
+NO - Specular, diffuse, and dielectric materials (per first volume of Ray Tracing in One Weekend series)  
+NO - Emissive materials (lights)  
 
-NO - High dynamic range images: 10
-NO - Volume rendering (smoke, clouds, etc.): 10
-NO - Quads: 10
-NO - Quadrics: 15
-NO - Spectral rendering: 30
-NO - BRDF materials (Bi-directional reflectance distribution functions): 30
-NO - Subsurface scattering (BSSRDFs): 30
-NO - Motion blur: 10
-NO - Defocus blur/depth of field: 10
-NO - Object instancing: 10
-NO - Perlin noise: 10
-NO - Cube maps: 15
-NO - Importance sampling: 15
-NO - Parallelization: 10
-NO - Normal interpolation (smooth shading): 5
-NO - Hybrid rendering with a GPU (OpenGL/DirectX + ray tracing): 20
-NO - GPU acceleration (GPU computing w/ e.g., CUDA): 20
-NO - Adaptive sampling: 15
+NO - High dynamic range images: 10  
+NO - Volume rendering (smoke, clouds, etc.): 10  
+NO - Quads: 10  
+NO - Quadrics: 15  
+NO - Spectral rendering: 30  
+NO - BRDF materials (Bi-directional reflectance distribution functions): 30  
+NO - Subsurface scattering (BSSRDFs): 30  
+NO - Motion blur: 10  
+NO - Defocus blur/depth of field: 10  
+NO - Object instancing: 10  
+NO - Perlin noise: 10  
+NO - Cube maps: 15  
+NO - Importance sampling: 15  
+NO - Parallelization: 10  
+NO - Normal interpolation (smooth shading): 5  
+NO - Hybrid rendering with a GPU (OpenGL/DirectX + ray tracing): 20  
+NO - GPU acceleration (GPU computing w/ e.g., CUDA): 20  
+NO - Adaptive sampling: 15  
