@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 
+/// @brief A utility class to store vector3 data
 class vec3 {
   public:
     double e[3];

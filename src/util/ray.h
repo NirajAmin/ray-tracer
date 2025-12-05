@@ -3,6 +3,7 @@
 
 #include "vec3.h"
 
+/// @brief Utility class to store ray data
 class ray {
   public:
     ray() {}
