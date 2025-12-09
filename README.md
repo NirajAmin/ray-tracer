@@ -13,7 +13,7 @@ NO - The ability to load textures (file format(s) of your choice; may use third-
 NO - Textured spheres and triangles  
 NO - The ability to load and render triangle meshes (file format(s) of your choice; may use third-party libraries for loading)  
 NO - A spatial subdivision acceleration structure of your choice  
-NO - Specular, diffuse, and dielectric materials (per first volume of Ray Tracing in One Weekend series)  
+YES - Specular, diffuse, and dielectric materials (per first volume of Ray Tracing in One Weekend series)  
 NO - Emissive materials (lights)  
 
 NO - High dynamic range images: 10  
@@ -23,8 +23,8 @@ NO - Quadrics: 15
 NO - Spectral rendering: 30  
 NO - BRDF materials (Bi-directional reflectance distribution functions): 30  
 NO - Subsurface scattering (BSSRDFs): 30  
-NO - Motion blur: 10  
-NO - Defocus blur/depth of field: 10  
+YES - Motion blur: 10  
+YES - Defocus blur/depth of field: 10  
 NO - Object instancing: 10  
 NO - Perlin noise: 10  
 NO - Cube maps: 15  
@@ -35,6 +35,11 @@ NO - Hybrid rendering with a GPU (OpenGL/DirectX + ray tracing): 20
 NO - GPU acceleration (GPU computing w/ e.g., CUDA): 20  
 NO - Adaptive sampling: 15  
 
-# Attributions
 
-Massive thanks to [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html) for providing a great starting point
+## Author and attributions
+
+This raytracer is developed by Niraj Amin.
+
+Thanks to the following sources for helpful resources:
+
+https://raytracing.github.io/

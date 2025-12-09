@@ -29,7 +29,7 @@ public:
         if (scatter_direction.near_zero())
             scatter_direction = rec.normal;
 
-        scattered = ray(rec.p, scatter_direction);
+        scattered = ray(rec.p, scatter_direction, r_in.time());
         attenuation = albedo;
         return true;
     }
@@ -50,7 +50,7 @@ public:
         vec3 reflected = reflect(r_in.direction(), rec.normal);
 
         reflected = unit_vector(reflected) + (fuzz * random_unit_vector());
-        scattered = ray(rec.p, reflected);
+        scattered = ray(rec.p, reflected, r_in.time());
         attenuation = albedo;
         return (dot(scattered.direction(), rec.normal) > 0);
     }
@@ -73,7 +73,7 @@ public:
 
         vec3 unit_direction = unit_vector(r_in.direction());
         double cos_theta = std::fmin(dot(-unit_direction, rec.normal), 1.0);
-        double sin_theta = std::sqrt(1.0 - cos_theta*cos_theta);
+        double sin_theta = std::sqrt(1.0 - cos_theta * cos_theta);
 
         bool cannot_refract = ri * sin_theta > 1.0;
         vec3 direction;
@@ -83,7 +83,7 @@ public:
         else
             direction = refract(unit_direction, rec.normal, ri);
 
-        scattered = ray(rec.p, direction);
+        scattered = ray(rec.p, direction, r_in.time());
         return true;
     }
 
