@@ -6,11 +6,10 @@ class ray
 {
 public:
   ray() {}
-
-    ray(const point3& origin, const vec3& direction, double time)
+  ray(const point3 &origin, const vec3 &direction, double time)
       : orig(origin), dir(direction), tm(time) {}
 
-    ray(const point3& origin, const vec3& direction)
+  ray(const point3 &origin, const vec3 &direction)
       : ray(origin, direction, 0) {}
 
   const point3 &origin() const { return orig; }
