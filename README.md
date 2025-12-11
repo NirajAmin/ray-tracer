@@ -8,9 +8,9 @@ Need 25 points plus minimum
 YES - A camera with configurable position, orientation, and field of view  
 YES - Anti-aliasing  
 YES - Ray/sphere intersections  
-NO - Ray/triangle intersections  
+YES - Ray/triangle intersections  
 YES - The ability to load textures (file format(s) of your choice; may use third-party libraries)  
-NO - Textured spheres and triangles  
+YES - Textured spheres and triangles  
 NO - The ability to load and render triangle meshes (file format(s) of your choice; may use third-party libraries for loading)  
 YES - A spatial subdivision acceleration structure of your choice  
 YES - Specular, diffuse, and dielectric materials (per first volume of Ray Tracing in One Weekend series)  
