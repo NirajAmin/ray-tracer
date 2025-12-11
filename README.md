@@ -14,10 +14,10 @@ NO - Textured spheres and triangles
 NO - The ability to load and render triangle meshes (file format(s) of your choice; may use third-party libraries for loading)  
 YES - A spatial subdivision acceleration structure of your choice  
 YES - Specular, diffuse, and dielectric materials (per first volume of Ray Tracing in One Weekend series)  
-NO - Emissive materials (lights)  
+YES - Emissive materials (lights)  
 
 NO - High dynamic range images: 10  
-NO - Volume rendering (smoke, clouds, etc.): 10  
+YES - Volume rendering (smoke, clouds, etc.): 10  
 YES - Quads: 10  
 NO - Quadrics: 15  
 NO - Spectral rendering: 30  
