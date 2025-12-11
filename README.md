@@ -29,7 +29,7 @@ NO - Object instancing: 10
 YES - Perlin noise: 10  
 NO - Cube maps: 15  
 NO - Importance sampling: 15  
-NO - Parallelization: 10  
+YES - Parallelization: 10  
 NO - Normal interpolation (smooth shading): 5  
 NO - Hybrid rendering with a GPU (OpenGL/DirectX + ray tracing): 20  
 NO - GPU acceleration (GPU computing w/ e.g., CUDA): 20  

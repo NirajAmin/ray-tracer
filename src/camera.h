@@ -7,6 +7,7 @@
 #include <thread>
 #include <vector>
 #include <mutex>
+#include <atomic>
 
 /// @brief The camera public vars can be set, and will effect the initialize call that happens before render
 class camera
@@ -26,53 +27,57 @@ public:
     double defocus_angle = 0; // Variation angle of rays through each pixel
     double focus_dist = 10;   // Distance from camera lookfrom point to plane of perfect focus
 
-std::mutex log_mutex;
+    std::mutex log_mutex;
 
-void render(const hittable &world)
-{
-    initialize();
+    void render(const hittable &world)
+    {
+        initialize();
 
-    std::vector<color> framebuffer(image_width * image_height);
+        std::vector<color> framebuffer(image_width * image_height);
+        std::atomic<int> remaining(image_height);
 
-    auto render_scanline = [&](int j) {
+        auto render_scanline = [&](int j)
         {
-            std::lock_guard<std::mutex> lock(log_mutex);
-            std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
-        }
-
-        for (int i = 0; i < image_width; i++) {
-            color pixel_color(0, 0, 0);
-
-            for (int sample = 0; sample < samples_per_pixel; sample++) {
-                ray r = get_ray(i, j);
-                pixel_color += ray_color(r, max_depth, world);
+            for (int i = 0; i < image_width; i++)
+            {
+                color pixel_color(0, 0, 0);
+                for (int s = 0; s < samples_per_pixel; s++)
+                {
+                    ray r = get_ray(i, j);
+                    pixel_color += ray_color(r, max_depth, world);
+                }
+                framebuffer[j * image_width + i] = pixel_samples_scale * pixel_color;
             }
+            int left = --remaining;
 
-            framebuffer[j * image_width + i] = pixel_samples_scale * pixel_color;
+            {
+                std::lock_guard<std::mutex> lock(log_mutex);
+                std::clog << "\rScanlines remaining: " << left << " " << std::flush;
+            }
+        };
+
+        // start threads
+        std::vector<std::thread> threads;
+        threads.reserve(image_height);
+
+        for (int j = 0; j < image_height; j++)
+        {
+            threads.emplace_back(render_scanline, j);
         }
-    };
 
-    // start threads
-    std::vector<std::thread> threads;
-    threads.reserve(image_height);
+        // rejoin the threads
+        for (auto &t : threads)
+            t.join();
 
-    for (int j = 0; j < image_height; j++) {
-        threads.emplace_back(render_scanline, j);
+        std::clog << "\rDone.                 \n";
+
+        // output the image
+        std::cout << "P3\n"
+                  << image_width << ' ' << image_height << "\n255\n";
+        for (int j = 0; j < image_height; j++)
+            for (int i = 0; i < image_width; i++)
+                write_color(std::cout, framebuffer[j * image_width + i]);
     }
-
-    // rejoin the threads
-    for (auto &t : threads)
-        t.join();
-
-    std::clog << "\rDone.                 \n";
-
-    // output the image
-    std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
-    for (int j = 0; j < image_height; j++)
-        for (int i = 0; i < image_width; i++)
-            write_color(std::cout, framebuffer[j * image_width + i]);
-}
-
 
 private:
     int image_height;           // Rendered image height
