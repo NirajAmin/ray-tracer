@@ -4,6 +4,10 @@
 #include "scene-objects/hittable.h"
 #include "scene-objects/material.h"
 
+#include <thread>
+#include <vector>
+#include <mutex>
+
 /// @brief The camera public vars can be set, and will effect the initialize call that happens before render
 class camera
 {
@@ -22,30 +26,53 @@ public:
     double defocus_angle = 0; // Variation angle of rays through each pixel
     double focus_dist = 10;   // Distance from camera lookfrom point to plane of perfect focus
 
-    void render(const hittable &world)
-    {
-        initialize();
+std::mutex log_mutex;
 
-        std::cout << "P3\n"
-                  << image_width << ' ' << image_height << "\n255\n";
+void render(const hittable &world)
+{
+    initialize();
 
-        for (int j = 0; j < image_height; j++)
+    std::vector<color> framebuffer(image_width * image_height);
+
+    auto render_scanline = [&](int j) {
         {
+            std::lock_guard<std::mutex> lock(log_mutex);
             std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
-            for (int i = 0; i < image_width; i++)
-            {
-                color pixel_color(0, 0, 0);
-                for (int sample = 0; sample < samples_per_pixel; sample++)
-                {
-                    ray r = get_ray(i, j);
-                    pixel_color += ray_color(r, max_depth, world);
-                }
-                write_color(std::cout, pixel_samples_scale * pixel_color);
-            }
         }
 
-        std::clog << "\rDone.                 \n";
+        for (int i = 0; i < image_width; i++) {
+            color pixel_color(0, 0, 0);
+
+            for (int sample = 0; sample < samples_per_pixel; sample++) {
+                ray r = get_ray(i, j);
+                pixel_color += ray_color(r, max_depth, world);
+            }
+
+            framebuffer[j * image_width + i] = pixel_samples_scale * pixel_color;
+        }
+    };
+
+    // start threads
+    std::vector<std::thread> threads;
+    threads.reserve(image_height);
+
+    for (int j = 0; j < image_height; j++) {
+        threads.emplace_back(render_scanline, j);
     }
+
+    // rejoin the threads
+    for (auto &t : threads)
+        t.join();
+
+    std::clog << "\rDone.                 \n";
+
+    // output the image
+    std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+    for (int j = 0; j < image_height; j++)
+        for (int i = 0; i < image_width; i++)
+            write_color(std::cout, framebuffer[j * image_width + i]);
+}
+
 
 private:
     int image_height;           // Rendered image height
@@ -142,7 +169,7 @@ private:
         if (!rec.mat->scatter(r, rec, attenuation, scattered))
             return color_from_emission;
 
-        color color_from_scatter = attenuation * ray_color(scattered, depth-1, world);
+        color color_from_scatter = attenuation * ray_color(scattered, depth - 1, world);
 
         return color_from_emission + color_from_scatter;
     }
