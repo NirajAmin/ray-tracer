@@ -8,6 +8,7 @@
 #include "scene-objects/quad.h"
 #include "scene-objects/constant_medium.h"
 #include "scene-objects/triangle.h"
+#include "util/obj_loader.h"
 
 #include "camera.h"
 
@@ -397,19 +398,15 @@ void final_scene(int image_width, int samples_per_pixel, int max_depth)
     cam.render(world);
 }
 
-void triangles_demo()
+void file_load_demo()
 {
     hittable_list world;
 
-    auto red = make_shared<lambertian>(color(1.0, 0.2, 0.2));
-    auto green = make_shared<lambertian>(color(0.2, 1.0, 0.2));
     auto blue = make_shared<lambertian>(color(0.2, 0.2, 1.0));
-    auto yellow = make_shared<lambertian>(color(1.0, 1.0, 0.2));
+    auto knight = load_object_file("./objects/ChessKnight.obj", blue, vec3(0,-40,0));
+    world.add(knight);
 
-    world.add(make_shared<triangle>(point3(-2, -1, 0), vec3(2, 0, 0), vec3(0, 2, 0), red));
-    world.add(make_shared<triangle>(point3(2, 1, 0), vec3(2, 0, 0), vec3(0, 2, 0), green));
-    world.add(make_shared<triangle>(point3(1, 1, 0), vec3(2, 0, -2), vec3(0, 2, 0), blue));
-    world.add(make_shared<triangle>(point3(-1, -1, 2), vec3(2, 0, -1), vec3(0, 2, -1), yellow));
+    world = hittable_list(make_shared<bvh_node>(world));
 
     camera cam;
 
@@ -420,8 +417,8 @@ void triangles_demo()
     cam.background = color(0.70, 0.80, 1.00);
 
     cam.vfov = 80;
-    cam.lookfrom = point3(0, 0, 9);
-    cam.lookat = point3(0, 0, 0);
+    cam.lookfrom = point3(-40, 10, 200);
+    cam.lookat = point3(0, -10, 0);
     cam.vup = vec3(0, 1, 0);
 
     cam.defocus_angle = 0;
@@ -440,5 +437,6 @@ int main()
     // cornell_box();
     // cornell_smoke();
     // final_scene(400,   250,  4);
-    triangles_demo();
+    // triangles_demo();
+    file_load_demo();
 }

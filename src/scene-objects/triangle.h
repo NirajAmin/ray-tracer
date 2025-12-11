@@ -5,35 +5,15 @@
 
 class triangle : public hittable {
 public:
-    triangle(const point3& Q, const vec3& u, const vec3& v, shared_ptr<material> mat)
-        : Q(Q), u(u), v(v), mat(mat)
+    triangle(const point3& A, const point3& B, const point3& C, shared_ptr<material> mat)
+        : A(A), B(B), C(C), mat(mat)
     {
-        auto n = cross(u, v);
-        normal = unit_vector(n);
-        D = dot(normal, Q);
-        w = n / dot(n, n);
-
+        compute_vectors();
         set_bounding_box();
     }
 
-    virtual void set_bounding_box() {
-        point3 A = Q;
-        point3 B = Q + u;
-        point3 C = Q + v;
-
-        double minx = std::fmin(A.x(), std::fmin(B.x(), C.x()));
-        double miny = std::fmin(A.y(), std::fmin(B.y(), C.y()));
-        double minz = std::fmin(A.z(), std::fmin(B.z(), C.z()));
-
-        double maxx = std::fmax(A.x(), std::fmax(B.x(), C.x()));
-        double maxy = std::fmax(A.y(), std::fmax(B.y(), C.y()));
-        double maxz = std::fmax(A.z(), std::fmax(B.z(), C.z()));
-
-        // add a bit of padding to prevent zero width
-        bbox = aabb(
-            point3(minx, miny, minz),
-            point3(maxx, maxy, maxz)
-        );
+    void setMaterial(shared_ptr<material> material) {
+        mat = material;
     }
 
     aabb bounding_box() const override {
@@ -50,10 +30,10 @@ public:
             return false;
 
         auto intersection = r.at(t);
-        vec3 planar_hit_vector = intersection - Q;
+        vec3 planar_hit_vector = intersection - A;
 
-        auto alpha = dot(w, cross(planar_hit_vector, v));
-        auto beta  = dot(w, cross(u, planar_hit_vector));
+        auto alpha = dot(w, cross(planar_hit_vector, C - A));
+        auto beta  = dot(w, cross(B - A, planar_hit_vector));
 
         if (!is_interior(alpha, beta, rec))
             return false;
@@ -66,24 +46,45 @@ public:
         return true;
     }
 
-    virtual bool is_interior(double a, double b, hit_record& rec) const {
+private:
+    point3 A, B, C;
+    shared_ptr<material> mat;
+    vec3 normal; 
+    vec3 w; 
+    double D; 
+    aabb bbox;
 
+    void compute_vectors() {
+        vec3 u = B - A;
+        vec3 v = C - A;
+        auto n = cross(u, v);
+        normal = unit_vector(n);
+        D = dot(normal, A);
+        w = n / dot(n, n);
+    }
+
+    void set_bounding_box() {
+        double minx = std::fmin(A.x(), std::fmin(B.x(), C.x()));
+        double miny = std::fmin(A.y(), std::fmin(B.y(), C.y()));
+        double minz = std::fmin(A.z(), std::fmin(B.z(), C.z()));
+
+        double maxx = std::fmax(A.x(), std::fmax(B.x(), C.x()));
+        double maxy = std::fmax(A.y(), std::fmax(B.y(), C.y()));
+        double maxz = std::fmax(A.z(), std::fmax(B.z(), C.z()));
+
+        bbox = aabb(
+            point3(minx, miny, minz),
+            point3(maxx, maxy, maxz)
+        );
+    }
+
+    bool is_interior(double a, double b, hit_record& rec) const {
         if (a < 0 || b < 0 || a + b > 1)
             return false;
-
         rec.u = a;
         rec.v = b;
         return true;
     }
-
-private:
-    point3 Q;
-    vec3 u, v;
-    vec3 w;
-    shared_ptr<material> mat;
-    vec3 normal;
-    double D;
-    aabb bbox;
 };
 
 #endif
