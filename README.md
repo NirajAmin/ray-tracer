@@ -18,7 +18,7 @@ NO - Emissive materials (lights)
 
 NO - High dynamic range images: 10  
 NO - Volume rendering (smoke, clouds, etc.): 10  
-NO - Quads: 10  
+YES - Quads: 10  
 NO - Quadrics: 15  
 NO - Spectral rendering: 30  
 NO - BRDF materials (Bi-directional reflectance distribution functions): 30  
