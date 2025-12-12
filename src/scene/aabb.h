@@ -1,4 +1,4 @@
-#include "../util/interval.h"
+#include "../util/common.h"
 
 #ifndef AABB_H
 #define AABB_H

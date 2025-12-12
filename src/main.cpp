@@ -1,18 +1,18 @@
-#include "common.h"
+#include "util/common.h"
 
-#include "scene-objects/hittable.h"
-#include "scene-objects/hittable_list.h"
-#include "scene-objects/sphere.h"
-#include "scene-objects/material.h"
-#include "scene-objects/bvh.h"
-#include "scene-objects/quad.h"
-#include "scene-objects/constant_medium.h"
-#include "scene-objects/triangle.h"
-#include "util/obj_loader.h"
+#include "scene/scene-objects/hittable.h"
+#include "scene/hittable_list.h"
+#include "scene/scene-objects/sphere.h"
+#include "scene/materials/material.h"
+#include "scene/bvh.h"
+#include "scene/scene-objects/quad.h"
+#include "scene/scene-objects/constant_medium.h"
+#include "scene/scene-objects/triangle.h"
+#include "util/file-loading/obj-loader.h"
 
-#include "camera.h"
+#include "scene/camera.h"
 
-void bouncing_spheres()
+void bouncing_spheres_demo()
 {
     hittable_list world;
 
@@ -86,7 +86,7 @@ void bouncing_spheres()
     cam.render(world);
 }
 
-void checkered_spheres()
+void checkered_spheres_demo()
 {
     hittable_list world;
 
@@ -113,7 +113,7 @@ void checkered_spheres()
     cam.render(world);
 }
 
-void earth()
+void earth_demo()
 {
     auto earth_texture = make_shared<image_texture>("earthmap.jpg");
     auto earth_surface = make_shared<lambertian>(earth_texture);
@@ -137,7 +137,7 @@ void earth()
     cam.render(hittable_list(globe));
 }
 
-void perlin_spheres()
+void perlin_spheres_demo()
 {
     hittable_list world;
 
@@ -163,7 +163,7 @@ void perlin_spheres()
     cam.render(world);
 }
 
-void quads()
+void quads_demo()
 {
     hittable_list world;
 
@@ -199,7 +199,7 @@ void quads()
     cam.render(world);
 }
 
-void simple_light()
+void simple_light_demo()
 {
     hittable_list world;
 
@@ -229,7 +229,7 @@ void simple_light()
     cam.render(world);
 }
 
-void cornell_box()
+void cornell_box_demo()
 {
     hittable_list world;
 
@@ -258,8 +258,8 @@ void cornell_box()
     camera cam;
 
     cam.aspect_ratio = 1.0;
-    cam.image_width = 600;
-    cam.samples_per_pixel = 200;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 120;
     cam.max_depth = 50;
     cam.background = color(0, 0, 0);
 
@@ -273,7 +273,7 @@ void cornell_box()
     cam.render(world);
 }
 
-void cornell_smoke()
+void cornell_smoke_demo()
 {
     hittable_list world;
 
@@ -303,8 +303,8 @@ void cornell_smoke()
     camera cam;
 
     cam.aspect_ratio = 1.0;
-    cam.image_width = 600;
-    cam.samples_per_pixel = 200;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 150;
     cam.max_depth = 50;
     cam.background = color(0, 0, 0);
 
@@ -318,7 +318,7 @@ void cornell_smoke()
     cam.render(world);
 }
 
-void final_scene(int image_width, int samples_per_pixel, int max_depth)
+void final_scene_demo(int image_width, int samples_per_pixel, int max_depth)
 {
     hittable_list boxes1;
     auto ground = make_shared<lambertian>(color(0.48, 0.83, 0.53));
@@ -426,17 +426,21 @@ void file_load_demo()
     cam.render(world);
 }
 
+/// @brief A function to quickly test all demos to make sure everything still works
+void test_all() {
+    bouncing_spheres_demo();
+    checkered_spheres_demo();
+    earth_demo();
+    perlin_spheres_demo();
+    quads_demo();
+    simple_light_demo();
+    cornell_box_demo();
+    cornell_smoke_demo();
+    final_scene_demo(400,   150,  100);
+    file_load_demo();
+}
+
 int main()
 {
-    // bouncing_spheres();
-    // checkered_spheres();
-    // earth();
-    // perlin_spheres();
-    // quads();
-    // simple_light();
-    // cornell_box();
-    // cornell_smoke();
-    // final_scene(400,   250,  4);
-    // triangles_demo();
-    file_load_demo();
+    test_all();
 }

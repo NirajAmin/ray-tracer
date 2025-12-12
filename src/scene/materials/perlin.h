@@ -1,7 +1,7 @@
 #ifndef PERLIN_H
 #define PERLIN_H
 
-#include "../common.h"
+#include "../../util/common.h"
 
 class perlin
 {

@@ -3,12 +3,12 @@
 
 #define TINYOBJLOADER_IMPLEMENTATION
 
-#include "../scene-objects/triangle.h"
-#include "../scene-objects/hittable_list.h"
-#include "../scene-objects/material.h"
-#include "vec3.h"
+#include "../../scene/scene-objects/triangle.h"
+#include "../../scene/hittable_list.h"
+#include "../../scene/materials/material.h"
+#include "../common.h"
 
-#include "../external/tiny_obj_loader.h"
+#include "../../external/tiny_obj_loader.h"
 
 hittable_list load_object_file(std::string filePath, shared_ptr<material> mat, vec3 offset = vec3(0,0,0))
 {

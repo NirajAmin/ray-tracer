@@ -1,7 +1,7 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "hittable.h"
+#include "../scene-objects/hittable.h"
 #include "texture.h"
 
 class material

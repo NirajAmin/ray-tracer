@@ -2,8 +2,8 @@
 #define CONSTANT_MEDIUM_H
 
 #include "hittable.h"
-#include "material.h"
-#include "texture.h"
+#include "../materials/material.h"
+#include "../materials/texture.h"
 
 class constant_medium : public hittable {
   public:

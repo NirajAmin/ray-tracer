@@ -2,7 +2,7 @@
 #define CAMERA_H
 
 #include "scene-objects/hittable.h"
-#include "scene-objects/material.h"
+#include "materials/material.h"
 
 #include <thread>
 #include <vector>
