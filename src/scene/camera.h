@@ -194,10 +194,10 @@ private:
 
         ray scattered;
         color attenuation;
-                double pdf_value;
-        color color_from_emission = rec.mat->emitted(rec.u, rec.v, rec.p);
+        double pdf_value;
+        color color_from_emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.p);
 
-         if (!rec.mat->scatter(r, rec, attenuation, scattered, pdf_value))
+        if (!rec.mat->scatter(r, rec, attenuation, scattered, pdf_value))
             return color_from_emission;
 
         auto on_light = point3(random_double(213,343), 554, random_double(227,332));
