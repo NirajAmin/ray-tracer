@@ -7,6 +7,15 @@
 #include <memory>
 #include <random>
 
+// Toggle cuda tags off and on
+// #define __CUDACC__
+
+#ifdef __CUDACC__
+    #define CUDA_HOST_DEVICE __host__ __device__
+#else
+    #define CUDA_HOST_DEVICE
+#endif
+
 
 // C++ Std Usings
 
