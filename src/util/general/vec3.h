@@ -121,6 +121,10 @@ inline vec3 cross(const vec3 &u, const vec3 &v)
                 u.e[0] * v.e[1] - u.e[1] * v.e[0]);
 }
 
+inline vec3 exp(const vec3& v) {
+    return vec3(std::exp(v.x()), std::exp(v.y()), std::exp(v.z()));
+}
+
 inline vec3 unit_vector(const vec3 &v)
 {
     return v / v.length();
@@ -174,6 +178,11 @@ inline vec3 random_cosine_direction() {
     auto z = std::sqrt(1-r2);
 
     return vec3(x, y, z);
+}
+
+inline vec3 sample_phase_function(const vec3& incident, double g)
+{
+    return random_unit_vector();
 }
 
 #endif

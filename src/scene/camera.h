@@ -9,6 +9,7 @@
 #include <vector>
 #include <mutex>
 #include <atomic>
+#include <cmath>
 
 /// @brief The camera public vars can be set, and will effect the initialize call that happens before render
 class camera
@@ -184,41 +185,81 @@ private:
         return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
     }
 
-    color ray_color(const ray& r, int depth, const hittable& world, const hittable& lights)
-    const {
-        // If we've exceeded the ray bounce limit, no more light is gathered.
-        if (depth <= 0)
-            return color(0, 0, 0);
-        hit_record rec;
+color ray_color(const ray& r, int depth, const hittable& world, const hittable& lights) const
+{
+    if (depth <= 0)
+        return color(0, 0, 0);
 
-        // If the ray hits nothing, return the background color.
-        if (!world.hit(r, interval(0.001, infinity), rec))
-            return background;
+    hit_record rec;
 
-        scatter_record srec;
-        color color_from_emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.p);
+    if (!world.hit(r, interval(0.001, infinity), rec))
+        return background;
 
-        if (!rec.mat->scatter(r, rec, srec))
-            return color_from_emission;
+    auto mat_ptr = rec.mat;
 
-        if (srec.skip_pdf) {
-            return srec.attenuation * ray_color(srec.skip_pdf_ray, depth-1, world, lights);
+    // Time to subsurface scatter :)
+    vec3 scatter_coef = mat_ptr->scattering_vec();
+    vec3 absorb_coef  = mat_ptr->absorption_vec();
+    vec3 total = scatter_coef + absorb_coef;
+
+    if (scatter_coef.length() > 0.0f)
+    {
+        ray scattered = r;
+        color throughput(1.0, 1.0, 1.0);
+        const int max_scatter_events = 30;
+
+        for (int i = 0; i < max_scatter_events; ++i)
+        {
+            double t = -log(random_double()) / total.length();
+
+            scattered = ray(scattered.origin() + t * scattered.direction(),
+                            sample_phase_function(scattered.direction(), 0.0f));
+
+            // Attenuate per-channel
+            throughput = throughput * exp(-total * t);
+
+            // Check if the ray hits a surface
+            hit_record exit_rec;
+            if (world.hit(scattered, interval(0.001, infinity), exit_rec))
+            {
+                color emission = exit_rec.mat->emitted(scattered, exit_rec, exit_rec.u, exit_rec.v, exit_rec.p);
+                return throughput * (emission + ray_color(scattered, depth - 1, world, lights));
+            }
+
+            // Russian roulette
+            if (random_double() > 0.9)
+                break;
         }
 
-        auto light_ptr = make_shared<hittable_pdf>(lights, rec.p);
-        mixture_pdf p(light_ptr, srec.pdf_ptr);
-
-        ray scattered = ray(rec.p, p.generate(), r.time());
-        auto pdf_value = p.value(scattered.direction());
-
-        double scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
-
-        color sample_color = ray_color(scattered, depth-1, world, lights);
-        color color_from_scatter =
-            (srec.attenuation * scattering_pdf * sample_color) / pdf_value;
-
-        return color_from_emission + color_from_scatter;
+        return color(0, 0, 0);
     }
+
+    scatter_record srec;
+    color color_from_emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.p);
+
+    if (!rec.mat->scatter(r, rec, srec))
+        return color_from_emission;
+
+    if (srec.skip_pdf) {
+        return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, world, lights);
+    }
+
+    auto light_ptr = make_shared<hittable_pdf>(lights, rec.p);
+    mixture_pdf p(light_ptr, srec.pdf_ptr);
+
+    ray scattered = ray(rec.p, p.generate(), r.time());
+    auto pdf_value = p.value(scattered.direction());
+
+    double scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
+
+    color sample_color = ray_color(scattered, depth - 1, world, lights);
+    color color_from_scatter =
+        (srec.attenuation * scattering_pdf * sample_color) / pdf_value;
+
+    return color_from_emission + color_from_scatter;
+}
+
+
 };
 
 #endif

@@ -33,13 +33,20 @@ public:
     {
         return 0;
     }
+
+    // Subsurface scattering info
+    virtual vec3 scattering_vec() const {  return vec3(0.0f, 0.0f, 0.0f); }
+    virtual vec3 absorption_vec() const {  return vec3(0.0f, 0.0f, 0.0f); }
 };
 
 class lambertian : public material
 {
 public:
-    lambertian(const color &albedo) : tex(make_shared<solid_color>(albedo)) {}
-    lambertian(shared_ptr<texture> tex) : tex(tex) {}
+    lambertian(const color &albedo, float sss_scatter = 0.0f, float sss_absorb = 0.0f)
+        : tex(make_shared<solid_color>(albedo)), sss_scattering(sss_scatter * albedo), sss_absorption(sss_absorb * albedo) {}
+
+    lambertian(shared_ptr<texture> tex, float sss_scatter = 0.0f, float sss_absorb = 0.0f)
+        : tex(tex), sss_scattering(vec3(0.0f, 0.0f, 0.0f)), sss_absorption(vec3(0.0f, 0.0f, 0.0f)) {} // TODO: add subsurface for textures
 
     bool scatter(const ray &r_in, const hit_record &rec, scatter_record &srec) const override
     {
@@ -56,8 +63,13 @@ public:
         return cos_theta < 0 ? 0 : cos_theta / pi;
     }
 
+    vec3 scattering_vec() const override { return sss_scattering; }
+    vec3 absorption_vec() const override { return sss_absorption; }
+
 private:
     shared_ptr<texture> tex;
+    vec3 sss_scattering;
+    vec3 sss_absorption;
 };
 
 class metal : public material
