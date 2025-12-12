@@ -12,6 +12,11 @@
 
 #include "scene/camera.h"
 
+
+    // Generic light sources
+    auto empty_material = shared_ptr<material>();
+    quad lights(point3(343,554,332), vec3(-130,0,0), vec3(0,0,-105), empty_material);
+
 void bouncing_spheres_demo()
 {
     hittable_list world;
@@ -83,7 +88,7 @@ void bouncing_spheres_demo()
     cam.defocus_angle = 0.6;
     cam.focus_dist = 10.0;
 
-    cam.render(world);
+    cam.render(world, lights);
 }
 
 void checkered_spheres_demo()
@@ -110,7 +115,7 @@ void checkered_spheres_demo()
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    cam.render(world, lights);
 }
 
 void earth_demo()
@@ -134,7 +139,7 @@ void earth_demo()
 
     cam.defocus_angle = 0;
 
-    cam.render(hittable_list(globe));
+    cam.render(hittable_list(globe), lights);
 }
 
 void perlin_spheres_demo()
@@ -160,7 +165,7 @@ void perlin_spheres_demo()
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    cam.render(world, lights);
 }
 
 void quads_demo()
@@ -196,7 +201,7 @@ void quads_demo()
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    cam.render(world, lights);
 }
 
 void simple_light_demo()
@@ -226,7 +231,7 @@ void simple_light_demo()
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    cam.render(world, lights);
 }
 
 void cornell_box_demo()
@@ -275,7 +280,7 @@ void cornell_box_demo()
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    cam.render(world, lights);
 }
 
 void cornell_smoke_demo()
@@ -320,7 +325,7 @@ void cornell_smoke_demo()
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    cam.render(world, lights);
 }
 
 void final_scene_demo(int image_width, int samples_per_pixel, int max_depth)
@@ -400,7 +405,7 @@ void final_scene_demo(int image_width, int samples_per_pixel, int max_depth)
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    cam.render(world, lights);
 }
 
 void file_load_demo()
@@ -428,7 +433,7 @@ void file_load_demo()
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    cam.render(world, lights);
 }
 
 /// @brief A function to quickly test all demos to make sure everything still works
