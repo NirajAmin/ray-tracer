@@ -10,6 +10,12 @@
 #include <mutex>
 #include <atomic>
 
+#ifdef __CUDACC__
+#include <cuda_runtime.h>
+#include "hittable_list_gpu.h"
+#include "bvh_gpu.h"
+#endif
+
 /// @brief The camera public vars can be set, and will effect the initialize call that happens before render
 class camera
 {
@@ -32,8 +38,55 @@ public:
 
     void render(const hittable &world, const hittable &lights)
     {
+
         initialize();
 
+#ifdef __CUDACC__
+
+    // Allocate framebuffer on GPU
+    color* d_framebuffer;
+    cudaMalloc(&d_framebuffer, image_width * image_height * sizeof(color));
+
+    dim3 block(16,16);
+    dim3 grid((image_width+15)/16, (image_height+15)/16);
+
+    render_kernel<<<grid, block>>>(
+        d_framebuffer, image_width, image_height,
+        d_spheres, num_spheres,
+        d_triangles, num_triangles,
+        d_quads, num_quads,
+        d_materials,
+        vec3f(center.x(), center.y(), center.z()),
+        vec3f(u.x(), u.y(), u.z()),
+        vec3f(v.x(), v.y(), v.z()),
+        vec3f(w.x(), w.y(), w.z()),
+        vec3f(pixel00_loc.x(), pixel00_loc.y(), pixel00_loc.z()),
+        vec3f(pixel_delta_u.x(), pixel_delta_u.y(), pixel_delta_u.z()),
+        vec3f(pixel_delta_v.x(), pixel_delta_v.y(), pixel_delta_v.z()),
+        vec3f(defocus_disk_u.x(), defocus_disk_u.y(), defocus_disk_u.z()),
+        vec3f(defocus_disk_v.x(), defocus_disk_v.y(), defocus_disk_v.z()),
+        defocus_angle,
+        color(background.x(), background.y(), background.z()),
+        max_depth, samples_per_pixel);
+
+    cudaDeviceSynchronize();
+
+    // Copy result back
+    std::vector<color> framebuffer(image_width*image_height);
+    cudaMemcpy(framebuffer.data(), d_framebuffer, image_width*image_height*sizeof(color), cudaMemcpyDeviceToHost);
+
+    cudaFree(d_framebuffer);
+    cudaFree(d_spheres);
+    cudaFree(d_triangles);
+    cudaFree(d_quads);
+    cudaFree(d_materials);
+
+    std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+    for (int j = 0; j < image_height; j++)
+        for (int i = 0; i < image_width; i++)
+            write_color(std::cout, framebuffer[j*image_width + i]);
+
+#else
         std::vector<color> framebuffer(image_width * image_height);
 
         // get number of worker threads avalible
@@ -92,6 +145,7 @@ public:
         for (int j = 0; j < image_height; j++)
             for (int i = 0; i < image_width; i++)
                 write_color(std::cout, framebuffer[j * image_width + i]);
+#endif
     }
 
 private:
@@ -107,7 +161,7 @@ private:
     vec3 defocus_disk_u;        // Defocus disk horizontal radius
     vec3 defocus_disk_v;        // Defocus disk vertical radius
 
-    void initialize()
+    CUDA_HOST_DEVICE void initialize()
     {
         image_height = int(image_width / aspect_ratio);
         image_height = (image_height < 1) ? 1 : image_height;
@@ -147,7 +201,8 @@ private:
         defocus_disk_v = v * defocus_radius;
     }
 
-    ray get_ray(int i, int j, int s_i, int s_j) const {
+    CUDA_HOST_DEVICE ray get_ray(int i, int j, int s_i, int s_j) const
+    {
         // Construct a camera ray originating from the defocus disk and directed at a randomly
         // sampled point around the pixel location i, j for stratified sample square s_i, s_j.
 
@@ -161,7 +216,8 @@ private:
         return ray(ray_origin, ray_direction, ray_time);
     }
 
-        vec3 sample_square_stratified(int s_i, int s_j) const {
+    vec3 sample_square_stratified(int s_i, int s_j) const
+    {
         // Returns the vector to a random point in the square sub-pixel specified by grid
         // indices s_i and s_j, for an idealized unit square pixel [-.5,-.5] to [+.5,+.5].
 
@@ -171,21 +227,22 @@ private:
         return vec3(px, py, 0);
     }
 
-    vec3 sample_square() const
+    CUDA_HOST_DEVICE vec3 sample_square() const
     {
         // Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
         return vec3(random_double() - 0.5, random_double() - 0.5, 0);
     }
 
-    point3 defocus_disk_sample() const
+    CUDA_HOST_DEVICE point3 defocus_disk_sample() const
     {
         // Returns a random point in the camera defocus disk.
         auto p = random_in_unit_disk();
         return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
     }
 
-    color ray_color(const ray& r, int depth, const hittable& world, const hittable& lights)
-    const {
+    CUDA_HOST_DEVICE color ray_color(const ray &r, int depth, const hittable &world, const hittable &lights)
+        const
+    {
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if (depth <= 0)
             return color(0, 0, 0);
@@ -201,8 +258,9 @@ private:
         if (!rec.mat->scatter(r, rec, srec))
             return color_from_emission;
 
-        if (srec.skip_pdf) {
-            return srec.attenuation * ray_color(srec.skip_pdf_ray, depth-1, world, lights);
+        if (srec.skip_pdf)
+        {
+            return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, world, lights);
         }
 
         auto light_ptr = make_shared<hittable_pdf>(lights, rec.p);
@@ -213,7 +271,7 @@ private:
 
         double scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
 
-        color sample_color = ray_color(scattered, depth-1, world, lights);
+        color sample_color = ray_color(scattered, depth - 1, world, lights);
         color color_from_scatter =
             (srec.attenuation * scattering_pdf * sample_color) / pdf_value;
 

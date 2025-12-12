@@ -5,19 +5,19 @@
 class ray
 {
 public:
-  ray() {}
-  ray(const point3 &origin, const vec3 &direction, double time)
+  CUDA_HOST_DEVICE ray() : orig(0, 0, 0), dir(0, 0, 0), tm(0) {}
+  CUDA_HOST_DEVICE ray(const point3 &origin, const vec3 &direction, double time)
       : orig(origin), dir(direction), tm(time) {}
 
-  ray(const point3 &origin, const vec3 &direction)
+  CUDA_HOST_DEVICE ray(const point3 &origin, const vec3 &direction)
       : ray(origin, direction, 0) {}
 
-  const point3 &origin() const { return orig; }
-  const vec3 &direction() const { return dir; }
+  CUDA_HOST_DEVICE const point3 &origin() const { return orig; }
+  CUDA_HOST_DEVICE const vec3 &direction() const { return dir; }
 
-  double time() const { return tm; }
+  CUDA_HOST_DEVICE double time() const { return tm; }
 
-  point3 at(double t) const
+  CUDA_HOST_DEVICE point3 at(double t) const
   {
     return orig + t * dir;
   }

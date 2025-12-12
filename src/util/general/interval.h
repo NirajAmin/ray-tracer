@@ -7,35 +7,35 @@ class interval {
   public:
     double min, max;
 
-    interval() : min(+infinity), max(-infinity) {} // Default interval is empty
+    CUDA_HOST_DEVICE interval() : min(+infinity), max(-infinity) {} // Default interval is empty
 
-    interval(double min, double max) : min(min), max(max) {}
+    CUDA_HOST_DEVICE interval(double min, double max) : min(min), max(max) {}
 
-    interval(const interval& a, const interval& b) {
+    CUDA_HOST_DEVICE interval(const interval& a, const interval& b) {
         // Create the interval tightly enclosing the two input intervals.
         min = a.min <= b.min ? a.min : b.min;
         max = a.max >= b.max ? a.max : b.max;
     }
 
-    double size() const {
+    CUDA_HOST_DEVICE double size() const {
         return max - min;
     }
 
-    bool contains(double x) const {
+    CUDA_HOST_DEVICE bool contains(double x) const {
         return min <= x && x <= max;
     }
 
-    bool surrounds(double x) const {
+    CUDA_HOST_DEVICE bool surrounds(double x) const {
         return min < x && x < max;
     }
 
-    double clamp(double x) const {
+    CUDA_HOST_DEVICE double clamp(double x) const {
         if (x < min) return min;
         if (x > max) return max;
         return x;
     }
 
-    interval expand(double delta) const {
+    CUDA_HOST_DEVICE interval expand(double delta) const {
         auto padding = delta/2;
         return interval(min - padding, max + padding);
     }
@@ -43,14 +43,19 @@ class interval {
     static const interval empty, universe;
 };
 
+#ifdef __CUDACC__
+__device__ const interval empty_interval(+infinity, -infinity);
+__device__ const interval universe_interval(-infinity, +infinity);
+#else
 const interval interval::empty    = interval(+infinity, -infinity);
 const interval interval::universe = interval(-infinity, +infinity);
+#endif
 
-interval operator+(const interval& ival, double displacement) {
+CUDA_HOST_DEVICE interval operator+(const interval& ival, double displacement) {
     return interval(ival.min + displacement, ival.max + displacement);
 }
 
-interval operator+(double displacement, const interval& ival) {
+CUDA_HOST_DEVICE interval operator+(double displacement, const interval& ival) {
     return ival + displacement;
 }
 

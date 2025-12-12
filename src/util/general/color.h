@@ -6,7 +6,7 @@
 
 using color = vec3;
 
-inline double linear_to_gamma(double linear_component)
+CUDA_HOST_DEVICE inline double linear_to_gamma(double linear_component)
 {
     if (linear_component > 0)
         return std::sqrt(linear_component);
@@ -14,7 +14,7 @@ inline double linear_to_gamma(double linear_component)
     return 0;
 }
 
-/// @brief Utility function to convert a vector to ppm format
+/// @brief Utility function to convert a vector to ppm format. Shouldnt have to use this inside kernel
 /// @param out
 /// @param pixel_color
 void write_color(std::ostream &out, const color &pixel_color)
