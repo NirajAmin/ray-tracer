@@ -28,7 +28,7 @@ YES - Defocus blur/depth of field: 10
 NO - Object instancing: 10  
 YES - Perlin noise: 10  
 NO - Cube maps: 15  
-NO - Importance sampling: 15  
+YES - Importance sampling: 15  
 YES - Parallelization: 10  
 NO - Normal interpolation (smooth shading): 5  
 NO - Hybrid rendering with a GPU (OpenGL/DirectX + ray tracing): 20  
