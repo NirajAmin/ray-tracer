@@ -5,6 +5,7 @@
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <random>
 
 
 // C++ Std Usings
@@ -23,10 +24,10 @@ inline double degrees_to_radians(double degrees) {
     return degrees * pi / 180.0;
 }
 
-/// @brief fdafas
-/// @return Returns a random real in [0,1).
 inline double random_double() {
-    return std::rand() / (RAND_MAX + 1.0);
+    thread_local static std::mt19937 generator(std::random_device{}());
+    thread_local static std::uniform_real_distribution<double> dist(0.0, 1.0);
+    return dist(generator);
 }
 
 /// @brief 
