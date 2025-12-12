@@ -1,8 +1,8 @@
 #ifndef HITTABLE_H
 #define HITTABLE_H
 
-#include "../common.h"
-#include "aabb.h"
+#include "../../util/common.h"
+#include "../aabb.h"
 
 class material;
 

@@ -2,9 +2,9 @@
 #define BVH_H
 
 #include "aabb.h"
-#include "hittable.h"
+#include "scene-objects/hittable.h"
 #include "hittable_list.h"
-#include "../common.h"
+#include "../util/common.h"
 
 #include <algorithm>
 

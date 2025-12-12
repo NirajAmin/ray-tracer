@@ -1,9 +1,9 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "../util/color.h"
-#include "../util/stb_image_util.h"
-#include "../util/perlin.h"
+#include "../../util/common.h"
+#include "../../util/file-loading/image-loader.h"
+#include "perlin.h"
 
 class texture {
   public:
