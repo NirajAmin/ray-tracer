@@ -5,7 +5,6 @@
 #include "../common.h"
 #include "../../scene/hittable_list.h"
 
-
 class pdf {
   public:
     virtual ~pdf() {}
@@ -88,5 +87,6 @@ class mixture_pdf : public pdf {
   private:
     shared_ptr<pdf> p[2];
 };
+
 
 #endif
