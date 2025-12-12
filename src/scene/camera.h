@@ -34,6 +34,10 @@ public:
         initialize();
 
         std::vector<color> framebuffer(image_width * image_height);
+
+        // get number of worker threads avalible
+        const int num_threads = std::thread::hardware_concurrency();
+        std::atomic<int> next_row(0);
         std::atomic<int> remaining(image_height);
 
         auto render_scanline = [&](int j)
@@ -41,37 +45,44 @@ public:
             for (int i = 0; i < image_width; i++)
             {
                 color pixel_color(0, 0, 0);
+
                 for (int s = 0; s < samples_per_pixel; s++)
                 {
                     ray r = get_ray(i, j);
                     pixel_color += ray_color(r, max_depth, world);
                 }
-                framebuffer[j * image_width + i] = pixel_samples_scale * pixel_color;
-            }
-            int left = --remaining;
 
-            {
-                std::lock_guard<std::mutex> lock(log_mutex);
-                std::clog << "\rScanlines remaining: " << left << " " << std::flush;
+                framebuffer[j * image_width + i] = pixel_samples_scale * pixel_color;
             }
         };
 
-        // start threads
-        std::vector<std::thread> threads;
-        threads.reserve(image_height);
-
-        for (int j = 0; j < image_height; j++)
+        auto worker = [&]()
         {
-            threads.emplace_back(render_scanline, j);
-        }
+            while (true)
+            {
+                int j = next_row.fetch_add(1);
+                if (j >= image_height)
+                    return;
 
-        // rejoin the threads
+                render_scanline(j);
+                int left = --remaining;
+                {
+                    std::lock_guard<std::mutex> lock(log_mutex);
+                    std::clog << "\rScanlines remaining: " << left << " " << std::flush;
+                }
+            }
+        };
+
+        std::vector<std::thread> threads;
+        threads.reserve(num_threads);
+        for (int t = 0; t < num_threads; t++)
+            threads.emplace_back(worker);
+
         for (auto &t : threads)
             t.join();
 
         std::clog << "\rDone.                 \n";
 
-        // output the image
         std::cout << "P3\n"
                   << image_width << ' ' << image_height << "\n255\n";
         for (int j = 0; j < image_height; j++)

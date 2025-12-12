@@ -442,5 +442,5 @@ void test_all() {
 
 int main()
 {
-    test_all();
+    cornell_box_demo();
 }
