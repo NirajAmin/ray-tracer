@@ -147,7 +147,8 @@ private:
         defocus_disk_v = v * defocus_radius;
     }
 
-    ray get_ray(int i, int j, int s_i, int s_j) const {
+    ray get_ray(int i, int j, int s_i, int s_j) const
+    {
         // Construct a camera ray originating from the defocus disk and directed at a randomly
         // sampled point around the pixel location i, j for stratified sample square s_i, s_j.
 
@@ -161,7 +162,8 @@ private:
         return ray(ray_origin, ray_direction, ray_time);
     }
 
-        vec3 sample_square_stratified(int s_i, int s_j) const {
+    vec3 sample_square_stratified(int s_i, int s_j) const
+    {
         // Returns the vector to a random point in the square sub-pixel specified by grid
         // indices s_i and s_j, for an idealized unit square pixel [-.5,-.5] to [+.5,+.5].
 
@@ -184,8 +186,9 @@ private:
         return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
     }
 
-    color ray_color(const ray& r, int depth, const hittable& world, const hittable& lights)
-    const {
+    color ray_color(const ray &r, int depth, const hittable &world, const hittable &lights)
+        const
+    {
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if (depth <= 0)
             return color(0, 0, 0);
@@ -201,8 +204,9 @@ private:
         if (!rec.mat->scatter(r, rec, srec))
             return color_from_emission;
 
-        if (srec.skip_pdf) {
-            return srec.attenuation * ray_color(srec.skip_pdf_ray, depth-1, world, lights);
+        if (srec.skip_pdf)
+        {
+            return srec.attenuation * ray_color(srec.skip_pdf_ray, depth - 1, world, lights);
         }
 
         auto light_ptr = make_shared<hittable_pdf>(lights, rec.p);
@@ -213,7 +217,7 @@ private:
 
         double scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
 
-        color sample_color = ray_color(scattered, depth-1, world, lights);
+        color sample_color = ray_color(scattered, depth - 1, world, lights);
         color color_from_scatter =
             (srec.attenuation * scattering_pdf * sample_color) / pdf_value;
 

@@ -12,10 +12,9 @@
 
 #include "scene/camera.h"
 
-
-    // Generic light sources
-    auto empty_material = shared_ptr<material>();
-    quad lights(point3(343,554,332), vec3(-130,0,0), vec3(0,0,-105), empty_material);
+// Generic light sources
+auto empty_material = shared_ptr<material>();
+quad lights(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), empty_material);
 
 void bouncing_spheres_demo()
 {
@@ -75,9 +74,9 @@ void bouncing_spheres_demo()
     camera cam;
 
     cam.aspect_ratio = 16.0 / 9.0;
-    cam.image_width = 400;
-    cam.samples_per_pixel = 100;
-    cam.max_depth = 20;
+    cam.image_width = 600;
+    cam.samples_per_pixel = 200;
+    cam.max_depth = 150;
     cam.background = color(0.70, 0.80, 1.00);
 
     cam.vfov = 20;
@@ -238,43 +237,43 @@ void cornell_box_demo()
 {
     hittable_list world;
 
-    auto red   = make_shared<lambertian>(color(.65, .05, .05));
+    auto red = make_shared<lambertian>(color(.65, .05, .05));
     auto white = make_shared<lambertian>(color(.73, .73, .73));
     auto green = make_shared<lambertian>(color(.12, .45, .15));
     auto light = make_shared<diffuse_light>(color(15, 15, 15));
 
     // Cornell box sides
-    world.add(make_shared<quad>(point3(555,0,0), vec3(0,0,555), vec3(0,555,0), green));
-    world.add(make_shared<quad>(point3(0,0,555), vec3(0,0,-555), vec3(0,555,0), red));
-    world.add(make_shared<quad>(point3(0,555,0), vec3(555,0,0), vec3(0,0,555), white));
-    world.add(make_shared<quad>(point3(0,0,555), vec3(555,0,0), vec3(0,0,-555), white));
-    world.add(make_shared<quad>(point3(555,0,555), vec3(-555,0,0), vec3(0,555,0), white));
+    world.add(make_shared<quad>(point3(555, 0, 0), vec3(0, 0, 555), vec3(0, 555, 0), green));
+    world.add(make_shared<quad>(point3(0, 0, 555), vec3(0, 0, -555), vec3(0, 555, 0), red));
+    world.add(make_shared<quad>(point3(0, 555, 0), vec3(555, 0, 0), vec3(0, 0, 555), white));
+    world.add(make_shared<quad>(point3(0, 0, 555), vec3(555, 0, 0), vec3(0, 0, -555), white));
+    world.add(make_shared<quad>(point3(555, 0, 555), vec3(-555, 0, 0), vec3(0, 555, 0), white));
 
     // Light
-    world.add(make_shared<quad>(point3(213,554,227), vec3(130,0,0), vec3(0,0,105), light));
+    world.add(make_shared<quad>(point3(213, 554, 227), vec3(130, 0, 0), vec3(0, 0, 105), light));
 
     // Box
-    shared_ptr<hittable> box1 = box(point3(0,0,0), point3(165,330,165), white);
+    shared_ptr<hittable> box1 = box(point3(0, 0, 0), point3(165, 330, 165), white);
     box1 = make_shared<rotate_y>(box1, 15);
-    box1 = make_shared<translate>(box1, vec3(265,0,295));
+    box1 = make_shared<translate>(box1, vec3(265, 0, 295));
     world.add(box1);
 
     // Glass Sphere
     auto glass = make_shared<dielectric>(1.5);
-    world.add(make_shared<sphere>(point3(190,90,190), 90, glass));
+    world.add(make_shared<sphere>(point3(190, 90, 190), 90, glass));
 
     camera cam;
 
-    cam.aspect_ratio      = 1.0;
-    cam.image_width       = 600;
+    cam.aspect_ratio = 1.0;
+    cam.image_width = 600;
     cam.samples_per_pixel = 1000;
-    cam.max_depth         = 150;
-    cam.background        = color(0,0,0);
+    cam.max_depth = 150;
+    cam.background = color(0, 0, 0);
 
-    cam.vfov     = 40;
+    cam.vfov = 40;
     cam.lookfrom = point3(278, 278, -800);
-    cam.lookat   = point3(278, 278, 0);
-    cam.vup      = vec3(0, 1, 0);
+    cam.lookat = point3(278, 278, 0);
+    cam.vup = vec3(0, 1, 0);
 
     cam.defocus_angle = 0;
 
@@ -311,9 +310,9 @@ void cornell_smoke_demo()
     camera cam;
 
     cam.aspect_ratio = 1.0;
-    cam.image_width = 400;
-    cam.samples_per_pixel = 150;
-    cam.max_depth = 50;
+    cam.image_width = 600;
+    cam.samples_per_pixel = 200;
+    cam.max_depth = 150;
     cam.background = color(0, 0, 0);
 
     cam.vfov = 40;
@@ -411,7 +410,7 @@ void file_load_demo()
     hittable_list world;
 
     auto blue = make_shared<lambertian>(color(0.2, 0.2, 1.0));
-    auto knight = load_object_file("./objects/ChessKnight.obj", blue, vec3(0,-40,0));
+    auto knight = load_object_file("./objects/ChessKnight.obj", blue, vec3(0, -40, 0));
     world.add(knight);
 
     world = hittable_list(make_shared<bvh_node>(world));
@@ -434,8 +433,79 @@ void file_load_demo()
     cam.render(world, lights);
 }
 
+void the_dark_knight()
+{
+    hittable_list world;
+    hittable_list lights;
+
+    auto aluminum = make_shared<metal>(color(0.8, 0.85, 0.9), 0.05);
+    auto wood_tex = make_shared<image_texture>("wood.jpg");
+    auto wood     = make_shared<lambertian>(wood_tex);
+    auto black    = make_shared<lambertian>(color(0.02, 0.02, 0.02));
+    auto glass    = make_shared<dielectric>(1.5);
+    auto light    = make_shared<diffuse_light>(color(25, 25, 25));
+
+    const double scale = 0.5;
+    const double S = 555 * scale;
+
+    auto checker = make_shared<checker_texture>(
+        10.0,
+        color(0.0, 0.0, 0.0),
+        color(1.0, 1.0, 1.0)
+    );
+    auto floor_material = make_shared<lambertian>(checker);
+    auto ceiling_material = make_shared<lambertian>(color(0.05, 0.05, 0.3));
+
+    // Walls
+    world.add(make_shared<quad>(point3(0, 0, 0), vec3(0, S, 0), vec3(0, 0, S), wood));
+    world.add(make_shared<quad>(point3(S, 0, S), vec3(0, S, 0), vec3(0, 0, -S), wood));
+    world.add(make_shared<quad>(point3(0, 0, S), vec3(S, 0, 0), vec3(0, S, 0), aluminum));
+    world.add(make_shared<quad>(point3(0, 0, 0), vec3(S, 0, 0), vec3(0, 0, S), floor_material));
+    world.add(make_shared<quad>(point3(0, S, S), vec3(S, 0, 0), vec3(0, 0, -S), ceiling_material));
+
+    auto light_quad = make_shared<quad>(
+        point3(213 * scale, S - 1, 227 * scale),
+        vec3(130 * scale, 0, 0),
+        vec3(0, 0, 105 * scale),
+        light
+    );
+    world.add(light_quad);
+    lights.add(light_quad);
+
+    auto knight = load_object_file(
+        "./objects/ChessKnight.obj",
+        black,
+        vec3(S * 0.5, 25, S * 0.5)
+    );
+    world.add(knight);
+
+    world.add(make_shared<sphere>(
+        point3(S * 0.5, 150, S * 0.5),
+        75,
+        glass
+    ));
+
+    world = hittable_list(make_shared<bvh_node>(world));
+
+    camera cam;
+    cam.aspect_ratio = 1.0;
+    cam.image_width = 2000;
+    cam.samples_per_pixel = 200;
+    cam.max_depth = 400;
+    cam.background = color(0, 0, 0);
+
+    cam.vfov = 40;
+    cam.lookfrom = point3(S * 0.5, S * 0.5, -800 * scale);
+    cam.lookat   = point3(S * 0.5, S * 0.5, S * 0.5);
+    cam.vup      = vec3(0, 1, 0);
+    cam.defocus_angle = 0;
+
+    cam.render(world, lights);
+}
+
 /// @brief A function to quickly test all demos to make sure everything still works
-void test_all() {
+void test_all()
+{
     bouncing_spheres_demo();
     checkered_spheres_demo();
     earth_demo();
@@ -444,11 +514,11 @@ void test_all() {
     simple_light_demo();
     cornell_box_demo();
     cornell_smoke_demo();
-    final_scene_demo(400,   150,  100);
+    final_scene_demo(400, 150, 100);
     file_load_demo();
 }
 
 int main()
 {
-    cornell_box_demo();
+    the_dark_knight();
 }

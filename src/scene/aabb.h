@@ -9,7 +9,7 @@ class aabb
 public:
     interval x, y, z;
 
-    aabb() {} // The default AABB is empty, since intervals are empty by default.
+    aabb() {}
 
     aabb(const interval &x, const interval &y, const interval &z)
         : x(x), y(y), z(z)
@@ -84,7 +84,6 @@ private:
     void pad_to_minimums()
     {
         // Adjust the AABB so that no side is narrower than some delta, padding if necessary.
-
         double delta = 0.0001;
         if (x.size() < delta)
             x = x.expand(delta);

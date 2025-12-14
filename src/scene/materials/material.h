@@ -5,8 +5,9 @@
 #include "texture.h"
 #include "../../util/general/pdf.h"
 
-class scatter_record {
-  public:
+class scatter_record
+{
+public:
     color attenuation;
     shared_ptr<pdf> pdf_ptr;
     bool skip_pdf;
@@ -19,12 +20,13 @@ public:
     virtual ~material() = default;
 
     virtual color emitted(
-        const ray& r_in, const hit_record& rec, double u, double v, const point3& p
-    ) const {
+        const ray &r_in, const hit_record &rec, double u, double v, const point3 &p) const
+    {
         return color(0, 0, 0);
     }
 
-    virtual bool scatter(const ray& r_in, const hit_record& rec, scatter_record& srec) const {
+    virtual bool scatter(const ray &r_in, const hit_record &rec, scatter_record &srec) const
+    {
         return false;
     }
 
@@ -66,7 +68,8 @@ public:
     metal(const color &albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
     metal(const color &albedo) : albedo(albedo) {}
 
-    bool scatter(const ray& r_in, const hit_record& rec, scatter_record& srec) const override {
+    bool scatter(const ray &r_in, const hit_record &rec, scatter_record &srec) const override
+    {
         vec3 reflected = reflect(r_in.direction(), rec.normal);
 
         reflected = unit_vector(reflected) + (fuzz * random_unit_vector());
@@ -88,7 +91,8 @@ class dielectric : public material
 public:
     dielectric(double refraction_index) : refraction_index(refraction_index) {}
 
-    bool scatter(const ray& r_in, const hit_record& rec, scatter_record& srec) const override {
+    bool scatter(const ray &r_in, const hit_record &rec, scatter_record &srec) const override
+    {
         srec.attenuation = color(1.0, 1.0, 1.0);
         srec.pdf_ptr = nullptr;
         srec.skip_pdf = true;
@@ -111,8 +115,6 @@ public:
     }
 
 private:
-    // Refractive index in vacuum or air, or the ratio of the material's refractive index over
-    // the refractive index of the enclosing media
     double refraction_index;
 };
 
@@ -122,10 +124,11 @@ public:
     diffuse_light(shared_ptr<texture> tex) : tex(tex) {}
     diffuse_light(const color &emit) : tex(make_shared<solid_color>(emit)) {}
 
-    color emitted(const ray& r_in, const hit_record& rec, double u, double v, const point3& p)
-    const override {
+    color emitted(const ray &r_in, const hit_record &rec, double u, double v, const point3 &p)
+        const override
+    {
         if (!rec.front_face)
-            return color(0,0,0);
+            return color(0, 0, 0);
         return tex->value(u, v, p);
     }
 
@@ -139,15 +142,17 @@ public:
     isotropic(const color &albedo) : tex(make_shared<solid_color>(albedo)) {}
     isotropic(shared_ptr<texture> tex) : tex(tex) {}
 
-    bool scatter(const ray& r_in, const hit_record& rec, scatter_record& srec) const override {
+    bool scatter(const ray &r_in, const hit_record &rec, scatter_record &srec) const override
+    {
         srec.attenuation = tex->value(rec.u, rec.v, rec.p);
         srec.pdf_ptr = make_shared<sphere_pdf>();
         srec.skip_pdf = false;
         return true;
     }
 
-        double scattering_pdf(const ray& r_in, const hit_record& rec, const ray& scattered)
-    const override {
+    double scattering_pdf(const ray &r_in, const hit_record &rec, const ray &scattered)
+        const override
+    {
         return 1 / (4 * pi);
     }
 
